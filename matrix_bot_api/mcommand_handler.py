@@ -23,3 +23,9 @@ class MCommandHandler(MHandler):
             if re.match(self.cmd_char + self.command, event['content']['body']):
                 return True
         return False
+
+    def triggers_on(self, trigger):
+        if trigger == self.command:
+            return True
+        else:
+            return False

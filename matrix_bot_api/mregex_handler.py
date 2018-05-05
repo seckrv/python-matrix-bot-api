@@ -23,3 +23,9 @@ class MRegexHandler(MHandler):
                 return True
 
         return False
+
+    def triggers_on(self, trigger):
+        if trigger == self.regex_str:
+            return True
+        else:
+            return False

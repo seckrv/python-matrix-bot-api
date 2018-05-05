@@ -31,6 +31,11 @@ class MatrixBotAPI:
         # Store empty list of handlers
         self.handlers = []
 
+        # Store dict with additional arguments to handlers
+        # This allows to provide additional arguments to a specific handler
+        # callback on registration.
+        self.additional_arguments = {}
+
         # If rooms is None, we should listen for invites and automatically accept them
         if rooms is None:
             self.client.add_invite_listener(self.handle_invite)
@@ -45,8 +50,30 @@ class MatrixBotAPI:
             for room in self.rooms:
                 room.add_listener(self.handle_message)
 
-    def add_handler(self, handler):
+    def add_handler(self, handler, arg=''):
         self.handlers.append(handler)
+        self.additional_arguments[handler] = arg
+
+    def remove_handler(self, handler):
+        try:
+            self.handlers.remove(handler)
+        except ValueError as e:
+            return
+
+        try:
+            self.additional_arguments.pop(handler)
+        except KeyError as e:
+            return
+
+    def get_handler(self, trigger):
+        res = []
+
+        for h in self.handlers:
+            if h.triggers_on(trigger):
+                res.append(h)
+
+        return res
+
 
     def handle_message(self, room, event):
         # Make sure we didn't send this message
@@ -57,7 +84,8 @@ class MatrixBotAPI:
         for handler in self.handlers:
             if handler.test_callback(room, event):
                 # This handler needs to be called
-                handler.handle_callback(room, event)
+                arg = self.additional_arguments[handler]
+                handler.handle_callback(room, event, arg)
 
     def handle_invite(self, room_id, state):
         print("Got invite to room: " + str(room_id))
