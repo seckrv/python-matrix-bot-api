@@ -24,6 +24,7 @@ class MCommandHandler(MHandler):
                 return True
         return False
 
+    # Generic command testing function for all MHandler objects
     def triggers_on(self, trigger):
         if trigger == self.command:
             return True

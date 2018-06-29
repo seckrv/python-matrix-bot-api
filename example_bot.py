@@ -19,12 +19,12 @@ PASSWORD = ""  # Bot's password
 SERVER = ""  # Matrix server URL
 
 
-def hi_callback(room, event, data):
+def hi_callback(room, event):
     # Somebody said hi, let's say Hi back
     room.send_text("Hi, " + event['sender'])
 
 
-def echo_callback(room, event, data):
+def echo_callback(room, event):
     args = event['content']['body'].split()
     args.pop(0)
 
@@ -32,7 +32,7 @@ def echo_callback(room, event, data):
     room.send_text(' '.join(args))
 
 
-def dieroll_callback(room, event, data):
+def dieroll_callback(room, event):
     # someone wants a random number
     args = event['content']['body'].split()
 
@@ -55,7 +55,7 @@ def dieroll_callback(room, event, data):
     result = random.randrange(1,die_max+1)
     room.send_text(str(result))
 
-def generic_callback(room, event, data):
+def generic_greeting_callback(room, event, data):
     # Somebody wanted to be greeted, let's answer him with the registered
     # greeting, passed in the data argument
     room.send_text(data + event['sender'])
@@ -79,8 +79,8 @@ def main():
 
     # Add two handlers for the greet/cheers command, using the same generic
     # greeting callback and the data argument
-    cheers_handler = MCommandHandler("cheers", generic_callback)
-    greet_handler = MCommandHandler("greet", generic_callback)
+    cheers_handler = MCommandHandler("cheers", generic_greeting_callback)
+    greet_handler = MCommandHandler("greet", generic_greeting_callback)
     bot.add_handler(cheers_handler, "Cheers, ")
     bot.add_handler(greet_handler, "Greetings, ")
 

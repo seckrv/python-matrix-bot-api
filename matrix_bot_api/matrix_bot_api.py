@@ -50,9 +50,13 @@ class MatrixBotAPI:
             for room in self.rooms:
                 room.add_listener(self.handle_message)
 
-    def add_handler(self, handler, arg=''):
+    # Add a new handler to the bot. If arg is given, it is provided as a third
+    # argument on every invocation of handler.
+    def add_handler(self, handler, arg=None):
         self.handlers.append(handler)
-        self.additional_arguments[handler] = arg
+
+        if arg:
+            self.additional_arguments[handler] = arg
 
     def remove_handler(self, handler):
         try:
@@ -62,7 +66,7 @@ class MatrixBotAPI:
 
         try:
             self.additional_arguments.pop(handler)
-        except KeyError as e:
+        except KeyError:
             return
 
     def get_handler(self, trigger):
@@ -84,8 +88,15 @@ class MatrixBotAPI:
         for handler in self.handlers:
             if handler.test_callback(room, event):
                 # This handler needs to be called
-                arg = self.additional_arguments[handler]
-                handler.handle_callback(room, event, arg)
+                try:
+                    # If an additional argument is registered for the handler,
+                    # call it with this argument
+                    arg = self.additional_arguments[handler]
+                    handler.handle_callback(room, event, arg)
+                except KeyError:
+                    # Otherwise leave it out
+                    handler.handle_callback(room, event)
+
 
     def handle_invite(self, room_id, state):
         print("Got invite to room: " + str(room_id))
